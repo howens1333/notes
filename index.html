@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7f8fb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Leafnote">
+  <meta name="description" content="A simple, private notebook for handwriting, sketching, and thinking.">
+  <title>Leafnote — Your space to think</title>
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" class="svg-library" aria-hidden="true">
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 7v14m0-14C9.5 5.3 6.5 5 3 6v14c3.5-1 6.5-.7 9 1m0-14c2.5-1.7 5.5-2 9-1v14c-3.5-1-6.5-.7-9 1"/></symbol>
+    <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+    <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="m12 19 8-8-7-7-8 8-2 9 9-2Z"/><path d="m9 8 7 7M3 21h7"/></symbol>
+    <symbol id="i-marker" viewBox="0 0 24 24"><path d="m10 3 11 11-7 7-11-11 7-7Z"/><path d="m8 15 6-6M3 21h7"/></symbol>
+    <symbol id="i-eraser" viewBox="0 0 24 24"><path d="m20 20-8.5 0-8-8a2 2 0 0 1 0-2.8l6-6a2 2 0 0 1 2.8 0l8.5 8.5a2 2 0 0 1 0 2.8L15 20"/><path d="m7 15 8-8"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V6a2 2 0 0 1 4 0v5-7a2 2 0 0 1 4 0v7-4a2 2 0 0 1 4 0v7l-3 7h-8l-6-7a2 2 0 0 1 3-3l2 2Z"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-2"/></symbol>
+    <symbol id="i-redo" viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h2"/></symbol>
+    <symbol id="i-dots" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 4h4m-8 3 1 14h10l1-14M10 11v6m4-6v6"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 17V4m-5 5 5-5 5 5M4 17v4h16v-4"/></symbol>
+    <symbol id="i-file-plus" viewBox="0 0 24 24"><path d="M13 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8l-8-8Z"/><path d="M13 3v8h8M8 16h8m-4-4v8"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></symbol>
+    <symbol id="i-zoom-in" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4M11 8v6M8 11h6"/></symbol>
+    <symbol id="i-zoom-out" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4M8 11h6"/></symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="m12 19 0-14m-6 6 6-6 6 6"/></symbol>
+    <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14m-6-6 6 6 6-6"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  </svg>
+  <div id="app">
+    <section id="library-view" class="view">
+      <header class="lib-topbar">
+        <div class="brand"><span class="brand-mark">✳</span><span>leafnote<span class="brand-dot">.</span></span></div>
+        <div class="top-actions">
+          <button class="quiet-button" id="import-backup-btn" type="button" title="Import a backup"><span data-icon="upload"></span><span class="hide-small">Import backup</span></button>
+          <button class="quiet-button" id="export-backup-btn" type="button" title="Download a backup"><span data-icon="download"></span><span class="hide-small">Back up</span></button>
+          <button class="icon-button" id="help-btn" type="button" aria-label="About saving your notes"><span data-icon="info"></span></button>
+        </div>
+      </header>
+      <main class="library-main">
+        <div class="library-hero">
+          <div>
+            <div class="eyebrow"><span class="eyebrow-line"></span> YOUR CREATIVE SPACE</div>
+            <h1>Every thought deserves<br><em>room to grow.</em></h1>
+            <p>Your notebooks, all in one peaceful place. Draw, write, and keep everything close.</p>
+          </div>
+          <button class="primary-button hero-create" id="new-notebook-btn" type="button"><span data-icon="plus"></span> New notebook</button>
+        </div>
+        <div class="library-section-header">
+          <div><h2>My notebooks <span class="count-bubble" id="notebook-count">0</span></h2><div class="hint">Tap a notebook to pick up where you left off.</div></div>
+          <label class="search-wrap"><span data-icon="search"></span><input id="search-notebooks" type="search" autocomplete="off" placeholder="Find a notebook" aria-label="Find a notebook"></label>
+        </div>
+        <div id="notebook-grid" class="notebook-grid"></div>
+        <div class="library-footer"><span data-icon="check"></span> Private by default. Your notes stay on this device unless you export them.</div>
+      </main>
+    </section>
+
+    <section id="editor-view" class="view hidden">
+      <header class="editor-topbar">
+        <div class="editor-breadcrumb">
+          <button class="icon-button back-button" id="back-library-btn" type="button" title="Back to notebooks"><span data-icon="chevron-left"></span></button>
+          <span class="breadcrumb-muted">Notebooks</span><span class="breadcrumb-slash">/</span>
+          <span class="notebook-current" id="editor-notebook-title"></span>
+        </div>
+        <div class="editor-top-actions">
+          <span class="autosave"><span class="saved-circle"></span><span id="save-label">Saved locally</span></span>
+          <button class="outline-button export-pdf-button" id="export-pdf-btn" type="button"><span data-icon="download"></span><span>Export PDF</span></button>
+          <div class="menu-parent">
+            <button class="icon-button" id="editor-more-btn" type="button" aria-label="Notebook menu" aria-expanded="false"><span data-icon="dots"></span></button>
+            <div class="dropdown hidden" id="editor-menu">
+              <button type="button" data-action="rename-notebook"><span data-icon="pen"></span> Rename notebook</button>
+              <button type="button" data-action="export-png"><span data-icon="download"></span> Download this page as PNG</button>
+              <button type="button" data-action="export-backup"><span data-icon="download"></span> Back up all notebooks</button>
+              <button type="button" data-action="toggle-pencil-only"><span data-icon="hand"></span> <span id="pencil-only-label">Pencil-only drawing: Off</span></button>
+              <div class="dropdown-separator"></div>
+              <button class="danger" type="button" data-action="delete-notebook"><span data-icon="trash"></span> Delete notebook</button>
+            </div>
+          </div>
+        </div>
+      </header>
+      <div class="toolrow">
+        <div class="toolrow-left">
+          <button class="icon-button rail-toggle" id="toggle-rail-btn" type="button" title="Show/hide pages" aria-label="Show/hide pages"><span data-icon="panel"></span></button>
+          <div class="toolbar-divider"></div>
+          <div class="tool-segment" role="group" aria-label="Drawing tools">
+            <button class="tool-btn active" data-tool="pen" title="Pen (P)" type="button"><span data-icon="pen"></span><span class="tool-label">Pen</span></button>
+            <button class="tool-btn" data-tool="marker" title="Highlighter (H)" type="button"><span data-icon="marker"></span></button>
+            <button class="tool-btn" data-tool="eraser" title="Eraser (E)" type="button"><span data-icon="eraser"></span></button>
+            <button class="tool-btn" data-tool="hand" title="Move around" type="button"><span data-icon="hand"></span></button>
+          </div>
+          <div class="toolbar-divider hide-tiny"></div>
+          <div class="color-row" id="color-row" aria-label="Ink color"></div>
+          <div class="toolbar-divider hide-tiny"></div>
+          <label class="stroke-slider" title="Stroke thickness"><span class="stroke-thin"></span><input type="range" id="stroke-size" min="1" max="16" step="0.5" value="3.5"><span class="stroke-thick"></span></label>
+        </div>
+        <div class="toolrow-right">
+          <button class="icon-button" id="undo-btn" title="Undo (⌘Z)" aria-label="Undo" type="button"><span data-icon="undo"></span></button>
+          <button class="icon-button" id="redo-btn" title="Redo (⌘⇧Z)" aria-label="Redo" type="button"><span data-icon="redo"></span></button>
+          <div class="toolbar-divider"></div>
+          <label class="template-select-wrap" title="Paper style"><select id="template-select" aria-label="Paper style"><option value="blank">Blank</option><option value="ruled">Ruled</option><option value="grid">Grid</option><option value="dots">Dots</option></select><span data-icon="chevron-down"></span></label>
+        </div>
+      </div>
+      <div class="editor-workspace">
+        <aside class="page-rail" id="page-rail" aria-label="Notebook pages">
+          <div class="rail-top"><span>Pages</span><button class="icon-button compact" id="rail-add-page-btn" type="button" title="New page" aria-label="New page"><span data-icon="plus"></span></button></div>
+          <div class="page-list" id="page-list"></div>
+          <div class="rail-bottom"><button class="add-page-outline" id="add-page-btn" type="button"><span data-icon="plus"></span> Add page</button></div>
+        </aside>
+        <main class="paper-area" id="paper-area">
+          <div class="paper-scroll" id="paper-scroll">
+            <div class="paper" id="paper">
+              <canvas id="paper-background" aria-hidden="true"></canvas>
+              <canvas id="paper-ink" aria-hidden="true"></canvas>
+              <canvas id="paper-live" aria-label="Drawing surface. Use a stylus or finger to write."></canvas>
+              <div id="eraser-cursor" class="eraser-cursor hidden" aria-hidden="true"></div>
+            </div>
+          </div>
+          <div class="floating-footer">
+            <div class="page-status" id="page-status">Page 1 of 1</div>
+            <div class="zoom-controls"><button class="icon-button compact" id="zoom-out-btn" title="Zoom out" aria-label="Zoom out"><span data-icon="zoom-out"></span></button><button class="zoom-value" id="zoom-fit-btn" title="Fit page to width">Fit</button><button class="icon-button compact" id="zoom-in-btn" title="Zoom in" aria-label="Zoom in"><span data-icon="zoom-in"></span></button></div>
+          </div>
+        </main>
+      </div>
+    </section>
+  </div>
+  <dialog id="app-modal"><div class="modal-inner" id="modal-inner"></div></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <input type="file" id="backup-file-input" accept=".json,application/json" hidden>
+  <script src="app.js" defer></script>
+</body>
+</html>
