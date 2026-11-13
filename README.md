@@ -8,7 +8,7 @@ A free, local-first notebook app for iPad and desktop browsers. No accounts, sub
 - Add, duplicate, delete, and reorder pages.
 - Blank, ruled, grid, and dotted paper styles.
 - Pen, transparent highlighter, stroke eraser, and hand/pan tool.
-- Apple Pencil pressure support, palm-rejection assistance, a Pencil-only toggle, and finger drawing.
+- Apple Pencil pressure support, palm-rejection assistance, Apple Pencil-only handwriting (mouse supported on desktop), and finger pan/pinch without ink.
 - Two-finger pinch zoom and zoom buttons.
 - Undo/redo and keyboard shortcuts.
 - Automatic storage with IndexedDB (localStorage fallback).
@@ -55,3 +55,10 @@ Other free static hosts (such as Cloudflare Pages or Netlify) are also suitable.
 Data model uses `notebooks` and `pages` IndexedDB object stores. Each page stores editable vector strokes in logical 816×1056 coordinates, allowing high-resolution output independent of display scaling. A PDF is generated client-side using JPEG page images; there are no network API calls.
 
 License: MIT (see LICENSE).
+
+## iPad handwriting controls
+
+- **Apple Pencil:** draw, highlight, and erase.
+- **Finger:** drag to move the page or pinch with two fingers to zoom; finger and palm contact cannot draw or erase.
+- **Desktop:** mouse drawing is supported.
+- Safari text selection and callouts on the canvas are disabled to avoid interrupted strokes.

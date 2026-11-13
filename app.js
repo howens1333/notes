@@ -33,7 +33,7 @@ class NotebookStorage {
     await new Promise((resolve,reject)=>{const tx=this.db.transaction(store,'readwrite');tx.objectStore(store).delete(id);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);});}
 }
 const storage=new NotebookStorage();
-const app={notebooks:[],pages:new Map(),notebookId:null,pageId:null,tool:'pen',color:COLORS[0],sizes:{pen:3.5,marker:25,eraser:23},pencilOnly:false,sidebarOpen:true,zoom:null,scale:1,history:{undo:[],redo:[]},pointer:null,touches:new Map(),pinch:null,lastPenTime:0,pending:0,view:'library'};
+const app={notebooks:[],pages:new Map(),notebookId:null,pageId:null,tool:'pen',color:COLORS[0],sizes:{pen:3.5,marker:25,eraser:23},pencilOnly:true,sidebarOpen:true,zoom:null,scale:1,history:{undo:[],redo:[]},pointer:null,touches:new Map(),pinch:null,lastPenTime:0,pending:0,view:'library'};
 let toastTimeout=null;
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('visible');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>t.classList.remove('visible'),2800);}
 function setSaving(on){const el=$('.autosave');if(!el)return;el.classList.toggle('saving',on);$('#save-label').textContent=on?'Saving…':'Saved locally';}
@@ -87,7 +87,6 @@ function renderToolbar(){
   const colors=$('#color-row');colors.innerHTML=COLORS.map(c=>`<button class="color-swatch ${app.color===c?'active':''}" type="button" data-color="${c}" style="--color:${c}" aria-label="${c==='\#ffffff'?'White ink':c+' ink'}" title="${c==='\#ffffff'?'White ink':c}"></button>`).join('');
   colors.querySelectorAll('button').forEach(b=>b.disabled=['eraser','hand'].includes(app.tool));
   const sl=$('#stroke-size');const size=app.sizes[app.tool]||3.5;sl.min=app.tool==='eraser'?'6':app.tool==='marker'?'8':'1';sl.max=app.tool==='eraser'?'70':app.tool==='marker'?'55':'20';sl.value=size;sl.disabled=app.tool==='hand';
-  $('#pencil-only-label').textContent=`Pencil-only drawing: ${app.pencilOnly?'On':'Off'}`;
   $('#undo-btn').disabled=!app.history.undo.length;$('#redo-btn').disabled=!app.history.redo.length;
   $('#paper').classList.remove('tool-pen','tool-marker','tool-eraser','tool-hand');$('#paper').classList.add(`tool-${app.tool}`);
 }
@@ -168,14 +167,16 @@ function notebookOptions(id){const n=app.notebooks.find(n=>n.id===id);if(!n)retu
 }
 function closeMenu(){$('#editor-menu').classList.add('hidden');$('#editor-more-btn').setAttribute('aria-expanded','false');}
 function toggleMenu(){const m=$('#editor-menu');m.classList.toggle('hidden');$('#editor-more-btn').setAttribute('aria-expanded',m.classList.contains('hidden')?'false':'true');}
-function showHelp(){showModal(`<h2 class="modal-title">Your notes belong to you</h2><div class="help-copy"><p><strong>Everything saves automatically on this device.</strong> Leafnote doesn't send anything to a server or require an account.</p><p><strong>Back up regularly.</strong> Use “Back up” to download all notebooks as a JSON file. Browser data can be cleared or evicted, and notes don't automatically sync to another iPad.</p><p><strong>Apple Pencil works.</strong> Draw with your Pencil or finger. In a notebook's menu, turn on “Pencil-only drawing” to move the page with your fingers without making marks.</p><p><strong>Take notes offline.</strong> When installed from a secure hosted website as a Home Screen app, Leafnote caches its files after the first online visit. If you're just opening the HTML file, offline install isn't available.</p><p><strong>Keyboard shortcuts:</strong> P = pen, H = highlighter, E = eraser, ⌘Z = undo, ⌘⇧Z = redo.</p></div><div class="modal-buttons"><button type="button" class="primary-button" data-modal-cancel>Got it</button></div>`);$('#modal-inner [data-modal-cancel]').addEventListener('click',closeModal);}
+function showHelp(){showModal(`<h2 class="modal-title">Your notes belong to you</h2><div class="help-copy"><p><strong>Everything saves automatically on this device.</strong> Leafnote doesn't send anything to a server or require an account.</p><p><strong>Back up regularly.</strong> Use “Back up” to download all notebooks as a JSON file. Browser data can be cleared or evicted, and notes don't automatically sync to another iPad.</p><p><strong>Apple Pencil only.</strong> Only Apple Pencil (or a mouse on desktop) can draw and erase. One finger moves the page; two fingers pinch to zoom. Resting your palm cannot make marks.</p><p><strong>Take notes offline.</strong> When installed from a secure hosted website as a Home Screen app, Leafnote caches its files after the first online visit. If you're just opening the HTML file, offline install isn't available.</p><p><strong>Keyboard shortcuts:</strong> P = pen, H = highlighter, E = eraser, ⌘Z = undo, ⌘⇧Z = redo.</p></div><div class="modal-buttons"><button type="button" class="primary-button" data-modal-cancel>Got it</button></div>`);$('#modal-inner [data-modal-cancel]').addEventListener('click',closeModal);}
 
 // Input: pointer events handle Apple Pencil, mouse, finger, and two-finger pinch zoom.
-function pointForEvent(e){const r=$('#paper-live').getBoundingClientRect();return [clamp((e.clientX-r.left)/r.width*W,0,W),clamp((e.clientY-r.top)/r.height*H,0,H),clamp(e.pressure||.5,.08,1)];}
-function addPoint(s,e){const pt=pointForEvent(e),last=s.points[s.points.length-1];if(!last||Math.hypot(pt[0]-last[0],pt[1]-last[1])>.65)s.points.push([Math.round(pt[0]*10)/10,Math.round(pt[1]*10)/10,Math.round(pt[2]*100)/100]);}
-function clearLive(){const c=$('#paper-live'),ctx=c.getContext('2d');if(ctx){ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,c.width,c.height);}}
+function pointForEvent(e){const r=$('#paper-live').getBoundingClientRect();return [clamp((e.clientX-r.left)/Math.max(r.width,1)*W,0,W),clamp((e.clientY-r.top)/Math.max(r.height,1)*H,0,H),clamp(e.pressure||.5,.08,1)];}
+function addPoint(s,e){const pt=pointForEvent(e),last=s.points[s.points.length-1];if(!last||Math.hypot(pt[0]-last[0],pt[1]-last[1])>.4)s.points.push([Math.round(pt[0]*10)/10,Math.round(pt[1]*10)/10,Math.round(pt[2]*100)/100]);}
+let liveFrame=0;
+function clearLive(){if(liveFrame){cancelAnimationFrame(liveFrame);liveFrame=0;}const c=$('#paper-live'),ctx=c.getContext('2d');if(ctx){ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,c.width,c.height);}}
 function cancelPointer(){app.pointer=null;app.touches.clear();app.pinch=null;clearLive();$('#paper').classList.remove('is-panning');$('#eraser-cursor').classList.add('hidden');}
 function drawLive(){const c=$('#paper-live');if(!app.pointer||app.pointer.kind!=='draw')return;const ctx=prepCanvas(c);drawStroke(ctx,app.pointer.stroke);}
+function scheduleLive(){if(liveFrame)return;liveFrame=requestAnimationFrame(()=>{liveFrame=0;drawLive();});}
 function showEraser(e){const circle=$('#eraser-cursor');if(app.tool!=='eraser'||!app.pointer&&!['mouse','pen'].includes(e.pointerType)){circle.classList.add('hidden');return;}const r=$('#paper-live').getBoundingClientRect();circle.classList.remove('hidden');circle.style.left=`${e.clientX-r.left}px`;circle.style.top=`${e.clientY-r.top}px`;const size=app.sizes.eraser*app.scale;circle.style.width=`${size}px`;circle.style.height=`${size}px`;}
 function pointSegmentDistance(px,py,a,b){const dx=b[0]-a[0],dy=b[1]-a[1];const den=dx*dx+dy*dy;if(den<.001)return Math.hypot(px-a[0],py-a[1]);const t=clamp(((px-a[0])*dx+(py-a[1])*dy)/den,0,1);return Math.hypot(px-(a[0]+t*dx),py-(a[1]+t*dy));}
 function nearStroke(stroke,x,y,r){const points=stroke.points||[];if(!points.length)return false;const threshold=r+(stroke.size||3)*.45;if(points.length===1)return Math.hypot(x-points[0][0],y-points[0][1])<threshold;for(let i=1;i<points.length;i++)if(pointSegmentDistance(x,y,points[i-1],points[i])<threshold)return true;return false;}
@@ -183,37 +184,110 @@ function eraseAt(e){const current=app.pointer;if(!current||current.kind!=='erase
   for(let k=1;k<=steps;k++){const x=last[0]+(pt[0]-last[0])*k/steps,y=last[1]+(pt[1]-last[1])*k/steps;const before=pg().strokes.length;pg().strokes=pg().strokes.filter(s=>!nearStroke(s,x,y,app.sizes.eraser*.5));if(before!==pg().strokes.length)didErase=true;}
   current.last=pt;if(didErase){current.changed=true;const c=$('#paper-ink');const ctx=prepCanvas(c);for(const stroke of pg().strokes)drawStroke(ctx,stroke);}
 }
-function onPointerDown(e){if(app.view!=='editor'||!pg())return;if(e.pointerType==='mouse'&&e.button!==0)return;
-  if(e.pointerType==='pen')app.lastPenTime=Date.now();
+function onPointerDown(e){
+  if(app.view!=='editor'||!pg())return;
   const surface=$('#paper-live');
-  if(e.pointerType==='touch'){app.touches.set(e.pointerId,{x:e.clientX,y:e.clientY});if(app.touches.size>=2){const pts=[...app.touches.values()];const dist=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);app.pointer=null;clearLive();app.pinch={distance:Math.max(1,dist),startScale:app.scale,scrollLeft:$('#paper-scroll').scrollLeft,scrollTop:$('#paper-scroll').scrollTop};try{surface.setPointerCapture(e.pointerId);}catch(_){}e.preventDefault();return;}}
-  if(app.pinch)return;
-  if(app.pointer)return;
-  if(e.pointerType==='touch'&&!app.pencilOnly&&Date.now()-app.lastPenTime<650){return;}
-  const shouldPan=app.tool==='hand'||(app.pencilOnly&&e.pointerType==='touch');
+  if(e.pointerType==='touch'){
+    e.preventDefault(); // Fingers and resting palms must NEVER draw or erase.
+    if(app.pointer?.pointerType==='pen')return; // Pencil always wins over palm.
+    app.touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    try{surface.setPointerCapture(e.pointerId);}catch(_){}
+    if(app.touches.size>=2){
+      const pts=[...app.touches.values()],dist=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);
+      app.pointer=null;$('#paper').classList.remove('is-panning');
+      app.pinch={distance:Math.max(1,dist),startScale:app.scale,scrollLeft:$('#paper-scroll').scrollLeft,scrollTop:$('#paper-scroll').scrollTop};
+      return;
+    }
+    if(app.pointer||app.pinch)return;
+    const sc=$('#paper-scroll');
+    app.pointer={kind:'pan',pointerType:'touch',id:e.pointerId,startX:e.clientX,startY:e.clientY,scrollLeft:sc.scrollLeft,scrollTop:sc.scrollTop};
+    $('#paper').classList.add('is-panning');
+    return;
+  }
+  if(e.pointerType!=='pen'&&e.pointerType!=='mouse')return;
+  if(e.pointerType==='mouse'&&(e.button!==0||Date.now()-app.lastPenTime<800))return;
+  if(app.pointer?.pointerType==='pen')return;
+  if(e.pointerType==='pen'){
+    app.lastPenTime=Date.now();
+    // If the user's palm landed first, take the pen immediately anyway.
+    app.pointer=null;app.touches.clear();app.pinch=null;
+    $('#paper').classList.remove('is-panning');
+  }else if(app.pointer||app.pinch)return;
+  e.preventDefault();
   try{surface.setPointerCapture(e.pointerId);}catch(_){}
+  if(app.tool==='hand'){
+    const sc=$('#paper-scroll');
+    app.pointer={kind:'pan',pointerType:e.pointerType,id:e.pointerId,startX:e.clientX,startY:e.clientY,scrollLeft:sc.scrollLeft,scrollTop:sc.scrollTop};
+    $('#paper').classList.add('is-panning');
+  }else if(app.tool==='eraser'){
+    app.pointer={kind:'erase',pointerType:e.pointerType,id:e.pointerId,before:clone(pg().strokes),last:null,changed:false,pageId:app.pageId};
+    eraseAt(e);showEraser(e);
+  }else{
+    const stroke={id:uid(),tool:app.tool,color:app.color,size:app.sizes[app.tool],points:[]};
+    addPoint(stroke,e);
+    app.pointer={kind:'draw',pointerType:e.pointerType,id:e.pointerId,stroke,pageId:app.pageId};
+    scheduleLive();
+  }
+}
+function onPointerMove(e){
+  if(e.pointerType==='touch'){
+    if(app.pointer?.pointerType==='pen'||!app.touches.has(e.pointerId))return;
+    e.preventDefault();app.touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(app.pinch&&app.touches.size>=2){
+      const pts=[...app.touches.values()],distance=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);
+      const scale=clamp(app.pinch.startScale*distance/app.pinch.distance,.30,2.3);
+      app.zoom=scale;fitPaper();paintCurrentPage();
+      const sc=$('#paper-scroll'),factor=scale/app.pinch.startScale;
+      sc.scrollLeft=app.pinch.scrollLeft*factor;sc.scrollTop=app.pinch.scrollTop*factor;
+    }else if(app.pointer?.kind==='pan'&&app.pointer.id===e.pointerId){
+      const p=app.pointer,sc=$('#paper-scroll');
+      sc.scrollLeft=p.scrollLeft+(p.startX-e.clientX);
+      sc.scrollTop=p.scrollTop+(p.startY-e.clientY);
+    }
+    return;
+  }
+  if(e.pointerType==='pen')app.lastPenTime=Date.now();
+  const p=app.pointer;
+  if(!p||p.id!==e.pointerId){showEraser(e);return;}
   e.preventDefault();
-  if(shouldPan){const sc=$('#paper-scroll');app.pointer={kind:'pan',id:e.pointerId,startX:e.clientX,startY:e.clientY,scrollLeft:sc.scrollLeft,scrollTop:sc.scrollTop};$('#paper').classList.add('is-panning');}
-  else if(app.tool==='eraser'){app.pointer={kind:'erase',id:e.pointerId,before:clone(pg().strokes),last:null,changed:false};eraseAt(e);showEraser(e);}
-  else{const stroke={id:uid(),tool:app.tool,color:app.color,size:app.sizes[app.tool],points:[]};addPoint(stroke,e);app.pointer={kind:'draw',id:e.pointerId,stroke};drawLive();}
+  if(p.kind==='pan'){
+    const sc=$('#paper-scroll');sc.scrollLeft=p.scrollLeft+(p.startX-e.clientX);sc.scrollTop=p.scrollTop+(p.startY-e.clientY);
+  }else if(p.kind==='erase'){
+    const coalesced=e.getCoalescedEvents?.();for(const sample of coalesced||[])eraseAt(sample);eraseAt(e);showEraser(e);
+  }else if(p.kind==='draw'){
+    const coalesced=e.getCoalescedEvents?.();for(const sample of coalesced||[])addPoint(p.stroke,sample);
+    addPoint(p.stroke,e);scheduleLive();
+  }
 }
-function onPointerMove(e){if(e.pointerType==='pen')app.lastPenTime=Date.now();if(e.pointerType==='touch'&&app.touches.has(e.pointerId)){app.touches.set(e.pointerId,{x:e.clientX,y:e.clientY});if(app.pinch&&app.touches.size>=2){const pts=[...app.touches.values()];const distance=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);const scale=clamp(app.pinch.startScale*distance/app.pinch.distance,.30,2.3);app.zoom=scale;fitPaper();paintCurrentPage();const sc=$('#paper-scroll');const factor=scale/app.pinch.startScale;sc.scrollLeft=app.pinch.scrollLeft*factor;sc.scrollTop=app.pinch.scrollTop*factor;return;}}
-  showEraser(e);
-  const p=app.pointer;if(!p||p.id!==e.pointerId)return;
-  e.preventDefault();
-  if(p.kind==='pan'){const sc=$('#paper-scroll');sc.scrollLeft=p.scrollLeft+(p.startX-e.clientX);sc.scrollTop=p.scrollTop+(p.startY-e.clientY);}
-  else if(p.kind==='erase')eraseAt(e);
-  else if(p.kind==='draw'){const coalesced=e.getCoalescedEvents?.();const events=coalesced?.length?coalesced:[e];for(const x of events)addPoint(p.stroke,x);drawLive();}
+function finishPointer(e,cancelled=false){
+  const p=app.pointer;
+  if(!p||p.id!==e.pointerId)return;
+  app.pointer=null;$('#paper').classList.remove('is-panning');clearLive();
+  if(p.pageId!==undefined&&p.pageId!==app.pageId)return;
+  if(p.kind==='draw'){
+    if(!cancelled)addPoint(p.stroke,e);
+    if(p.stroke.points.length){
+      pushUndo(clone(pg().strokes));pg().strokes.push(p.stroke);
+      savePage(pg());paintCurrentPage();updateThumbnail();
+    }
+  }else if(p.kind==='erase'&&p.changed){
+    pushUndo(p.before);savePage(pg());paintCurrentPage();updateThumbnail();
+  }
 }
-function onPointerUp(e){if(e.pointerType==='touch'){app.touches.delete(e.pointerId);if(app.pinch){if(app.touches.size<2)app.pinch=null;return;}}
-  const p=app.pointer;if(!p||p.id!==e.pointerId)return;app.pointer=null;$('#paper').classList.remove('is-panning');clearLive();
-  if(p.kind==='draw'){addPoint(p.stroke,e);}
-  if(p.kind==='draw'&&p.stroke.points.length){pushUndo(clone(pg().strokes));pg().strokes.push(p.stroke);savePage(pg());paintCurrentPage();updateThumbnail();}
-  else if(p.kind==='erase'&&p.changed){pushUndo(p.before);savePage(pg());paintCurrentPage();updateThumbnail();}
-  if(e.pointerType==='touch')$('#eraser-cursor').classList.add('hidden');
+function onPointerUp(e){
+  if(e.pointerType==='touch'){
+    app.touches.delete(e.pointerId);
+    if(app.pinch){if(app.touches.size<2)app.pinch=null;return;}
+  }
+  finishPointer(e);
 }
-function onPointerCancel(e){if(e.pointerType==='touch'){app.touches.delete(e.pointerId);if(app.touches.size<2)app.pinch=null;}if(app.pointer?.id===e.pointerId){app.pointer=null;clearLive();$('#paper').classList.remove('is-panning');}}
-
+function onPointerCancel(e){
+  if(e.pointerType==='touch'){
+    app.touches.delete(e.pointerId);if(app.touches.size<2)app.pinch=null;
+  }
+  // iPadOS may interrupt a Pencil stream; retain its partial handwriting.
+  finishPointer(e,true);
+}
 function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),15000);}
 function renderExportCanvas(page,scale=2){const c=document.createElement('canvas');c.width=W*scale;c.height=H*scale;paintPage(c.getContext('2d'),page,c.width,c.height);return c;}
 function exportPNG(){if(!pg())return;const c=renderExportCanvas(pg(),2);const file=`${filename(nb().name)}-page-${nb().pageOrder.indexOf(app.pageId)+1}.png`;if(c.toBlob)c.toBlob(blob=>{if(blob){downloadBlob(blob,file);toast('Page image downloaded');}},'image/png');else downloadBlob(dataUrlToBlob(c.toDataURL('image/png')),file);}
@@ -254,7 +328,7 @@ function bindEvents(){
   $('#backup-file-input').addEventListener('change',async e=>{if(e.target.files?.[0])await importBackup(e.target.files[0]);e.target.value='';});
   $('#export-pdf-btn').addEventListener('click',()=>exportPDF(nb()));
   $('#editor-more-btn').addEventListener('click',e=>{e.stopPropagation();toggleMenu();});
-  $('#editor-menu').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;closeMenu();const n=nb();switch(b.dataset.action){case'rename-notebook':showNotebookForm(n);break;case'export-png':exportPNG();break;case'export-backup':backup();break;case'toggle-pencil-only':app.pencilOnly=!app.pencilOnly;renderToolbar();toast(app.pencilOnly?'Pencil-only mode enabled':'Finger drawing enabled');break;case'delete-notebook':deleteNotebook(n);break;}});
+  $('#editor-menu').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;closeMenu();const n=nb();switch(b.dataset.action){case'rename-notebook':showNotebookForm(n);break;case'export-png':exportPNG();break;case'export-backup':backup();break;case'delete-notebook':deleteNotebook(n);break;}});
   document.addEventListener('click',e=>{if(!e.target.closest('.menu-parent'))closeMenu();});
   $('#toggle-rail-btn').addEventListener('click',()=>{app.sidebarOpen=!app.sidebarOpen;$('#page-rail').classList.toggle('collapsed',!app.sidebarOpen);requestAnimationFrame(()=>{fitPaper();paintCurrentPage();});});
   $('#page-list').addEventListener('click',e=>{const action=e.target.closest('[data-action]');if(action){if(action.disabled)return;const a=action.dataset.action;if(a==='duplicate-page')duplicatePage();if(a==='delete-page')deletePage();if(a==='move-page-up')movePage(-1);if(a==='move-page-down')movePage(1);return;}const item=e.target.closest('[data-page-id]');if(item)selectPage(item.dataset.pageId);});

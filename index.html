@@ -87,7 +87,6 @@
               <button type="button" data-action="rename-notebook"><span data-icon="pen"></span> Rename notebook</button>
               <button type="button" data-action="export-png"><span data-icon="download"></span> Download this page as PNG</button>
               <button type="button" data-action="export-backup"><span data-icon="download"></span> Back up all notebooks</button>
-              <button type="button" data-action="toggle-pencil-only"><span data-icon="hand"></span> <span id="pencil-only-label">Pencil-only drawing: Off</span></button>
               <div class="dropdown-separator"></div>
               <button class="danger" type="button" data-action="delete-notebook"><span data-icon="trash"></span> Delete notebook</button>
             </div>
@@ -127,7 +126,7 @@
             <div class="paper" id="paper">
               <canvas id="paper-background" aria-hidden="true"></canvas>
               <canvas id="paper-ink" aria-hidden="true"></canvas>
-              <canvas id="paper-live" aria-label="Drawing surface. Use a stylus or finger to write."></canvas>
+              <canvas id="paper-live" aria-label="Drawing surface. Draw with Apple Pencil; fingers pan or pinch to zoom."></canvas>
               <div id="eraser-cursor" class="eraser-cursor hidden" aria-hidden="true"></div>
             </div>
           </div>
